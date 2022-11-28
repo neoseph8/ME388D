@@ -116,9 +116,85 @@ for cells in SurfSpace:
     print("")
     l+=1
     
-#Define Outer Edge Surfaces
+#Define Outer Edge Surfaces 
+Edge = SurfY[0], SurfY[-1], SurfX[0], SurfX[-1]     #The set of edges to the space - the first and last X and Y surface
+
 
 #Rotate Surfaces
+def RotateSurfaces(Surfaces, Angle):
+    #Surfaces: the set of surfaces to rotate
+    #Angle: the angle to rotate the surfaces
+    #Augments the quadratic parameters of the surface
+    #Requires special treatment for vertical lines (AY+BX+C=0; A = 0), going into and out of veritcal lines
+    for iSurface in Surfaces:
+        A1, B1, C1 = iSurface.WriteABC()
+        if B1 == 0:
+            ThetaN0 = 0
+        else:
+            ThetaN0 = np.arctan(1/B1)
+        
+        
+        if A1 == 0:     #Case 1: Starting line is vertical, treat as creating new line
+            A2 = 1
+            B2 = 1/np.tan(Angle)
+            C2 = C1 / np.sin(Angle)
+        
+        
+        elif (ThetaN0 + Angle)%np.pi == 0.0     #Case 2: Final Line is vertical, 
+            A2 = 0
+            B2 = 1
+            C2 = C1 * np.sin(ThetaN0)        
+        
+        
+        else:   #Final Case, neither beginning nor ending line is vertical
+            A2 = A1
+            B2 = (B1 - np.tan(Angle))/(1+np.tan(Angle))
+            C2 = C1 / (np.cos(Angle) + B1 * np.sin(Angle))
+        iSurface.A = A2
+        iSurface.B = B2
+        iSurface.C = C2
+
+
+#Find Corners
+
+def FindCorners(Sy1, Sy2, Sx1, Sx2):
+    #For four perpendicular lines that create a rectangular shape, returns the xy coordinates of that shape
+    Yset = []
+    Xset = []
+    Y, X = 0.0, 0.0
+    for iSy in [Sy1, Sy2]:
+        for iSx in [Sx1, Sx2]:
+            Y,X = FindIntersection(iSy, iSx)
+            Yset.append(Y)
+            Xset.append(X)
+    return Yset, Xset        
+
+def FindIntersection(Sy, Sx):
+    #Two surfaces that should be orthogonal to each other
+    if Sy.A == 0 and Sx.B == 0: #Sy is vertical, Sx is horizontal
+        X = -1*Sy.C
+        Y = -1*Sx.C
+    
+    
+    elif Sy.B == 0 and Sx.A == 0: #Sx is vertical, Sy is horizontal (ie problem rotated 90 degrees)
+        X = -1*Sx.C
+        Y = -1*Sy.C
+    
+    
+    elif Sy.B * Sx.B == -1    :   #problem is not orthogonal to cartesian plane, but surfaces are orthogonal to each other
+        Mat = [[Sy.A, Sy.B],[Sx.A, Sx.B]]
+        Cvec = [-1*Sy.C, -1*Sx.C]
+        Y,X = np.linalg.inv(Mat) * Cvec
+    
+    else:
+        print("Error, Surfaces are not orthogonal")
+    return Y,X
+
+        
+        
+
+#Plot Rotating Lines
+
 
 #Find Sweep Start Position (surface)
 #Find Sweep start position (cell)
