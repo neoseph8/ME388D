@@ -116,7 +116,20 @@ for cells in SurfSpace:
     print("")
     l+=1
     
-    
+#Define Outer Edge Surfaces
+
+#Rotate Surfaces
+
+#Find Sweep Start Position (surface)
+#Find Sweep start position (cell)
+
+#Find Next Sweep Position (surfaces touching cell)
+
+#Generate Angular flux contribution for given cell
+
+#Store thicknesses and cells
+
+#Repeat sweep for opposite direction using stored thicknesses and cells
     
     
     
